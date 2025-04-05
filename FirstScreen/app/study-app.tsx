@@ -8,8 +8,10 @@ export default function StudyApp() {
   const [isRecording, setIsRecording] = useState(false)
   const [greeting, setGreeting] = useState("Good Morning User")
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number>(0)
   const recognitionRef = useRef<any>(null) //<n>
+  const [transcript, setTranscript] = useState("") //NEW
+
 
   useEffect(() => {
     // Update greeting based on time of day
@@ -101,11 +103,12 @@ export default function StudyApp() {
       recognition.lang = "en-US"
 
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0].transcript)
+        const text = Array.from(event.results)
+          .map((res: any) => res[0].transcript)
           .join("")
-        console.log("Transcript:", transcript)
+        setTranscript(text)
       }
+      
 
       recognition.onerror = (event: any) => {
         console.error("Speech recognition error", event.error)
@@ -122,6 +125,27 @@ export default function StudyApp() {
 
     setIsRecording(!isRecording)
   }
+  const handleSubmitTranscript = async (text: string) => {
+    console.log("Submitting transcript:", text)
+  
+    // TODO: Replace this with a real API call
+    try {
+      const response = await fetch("/api/generate-dashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: text }),
+      })
+  
+      const data = await response.json()
+      console.log("LLM response:", data)
+      // You could now update state to render the generated dashboard
+    } catch (error) {
+      console.error("Submission failed", error)
+    }
+  }
+  
 
   return (
     <div className="app-container">
@@ -141,8 +165,21 @@ export default function StudyApp() {
             </>
           )}
         </button>
+  
+        {/* Editable Transcript Section */}
+        <label className="transcript-label">Edit your study goals:</label>
+        <textarea
+          className="transcript-box"
+          value={transcript}
+          onChange={(e) => setTranscript(e.target.value)}
+          rows={6}
+        />
+        <button className="submit-transcript" onClick={() => handleSubmitTranscript(transcript)}>
+          Generate Study Dashboard
+        </button>
       </div>
     </div>
   )
+  
 }
 
