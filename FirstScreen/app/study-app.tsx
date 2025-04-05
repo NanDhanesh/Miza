@@ -9,6 +9,7 @@ export default function StudyApp() {
   const [greeting, setGreeting] = useState("Good Morning User")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number>()
+  const recognitionRef = useRef<any>(null) //<n>
 
   useEffect(() => {
     // Update greeting based on time of day
@@ -82,7 +83,43 @@ export default function StudyApp() {
     }
   }, [isRecording])
 
+  // const toggleRecording = () => {
+  //   setIsRecording(!isRecording)
+  // }
+
   const toggleRecording = () => {
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+      alert("Speech Recognition not supported in this browser.")
+      return
+    }
+
+    if (!recognitionRef.current) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      const recognition = new SpeechRecognition()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = "en-US"
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join("")
+        console.log("Transcript:", transcript)
+      }
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error)
+      }
+
+      recognitionRef.current = recognition
+    }
+
+    if (!isRecording) {
+      recognitionRef.current.start()
+    } else {
+      recognitionRef.current.stop()
+    }
+
     setIsRecording(!isRecording)
   }
 
