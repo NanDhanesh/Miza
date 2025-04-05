@@ -1,0 +1,122 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  
+  .app-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to bottom, #f5f7fa, #e4e8f0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  /* Canvas for audio waves */
+  .wave-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  
+  /* Content container */
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  /* Greeting text */
+  .greeting {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+  
+  /* Recording button */
+  .recording-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #3498db;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  }
+  
+  .recording-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+  }
+  
+  .recording-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  }
+  
+  /* Recording state */
+  .recording-button.recording {
+    background-color: #e74c3c;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  }
+  
+  .recording-button.recording:hover {
+    background-color: #c0392b;
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+  }
+  
+  .button-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .greeting {
+      font-size: 2rem;
+    }
+  
+    .content {
+      gap: 40px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .greeting {
+      font-size: 1.8rem;
+    }
+  
+    .recording-button {
+      padding: 14px 28px;
+      font-size: 1rem;
+    }
+  }
+  
+  
