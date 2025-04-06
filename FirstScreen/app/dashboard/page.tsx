@@ -60,6 +60,8 @@ export default function DashboardPage() {
     })
   }
 
+  //---------------------------------------------------------------//
+
   useEffect(() => {
     if (!isRunning || isPaused) return
   
@@ -157,6 +159,8 @@ export default function DashboardPage() {
       alert("Failed to start session: Could not reach local server.")
     }
   }
+
+  //---------------------------------------------------------------//
 
   // const handleEnd = async () => {
   //   try {
