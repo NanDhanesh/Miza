@@ -1,7 +1,26 @@
-A tool we buildin’ 🔧💻 — real slick, real vicious 😤. You drop ya voice 🎙️, we flip it 📜 into tasks you finna crush 💪🏽📈. Got a dashboard cleaner than Yoda’s kicks 👟✨, showin’ all you tryna get done ✅.
+## Inspiration
 
-But wait, young padawan 😏 — we track yo eyes 👀 and peep that browser game 🌐🔥. You focused? Or you slippin’? 😤 Stay sharp, stay locked in 🚀. Productivity high, distractions low 💨.
-Boutta buss a phat nut of efficiency, I am 🥵💥💯.
-On god. No cap.🔮🧠⏱️
+We were inspired by the Wildhacks 2025 theme of Choose Your Own Adventure, specifically the emphasis of personal agency and how it relates to productivity. We wanted to create an app that would empower users to take responsibility for their own time, breaking free of distractions that impede high-quality work and learning. We want to offer students insight into their productivity during study sessions and help them break distracting habits.
 
-Built different, this tool is 🧪🔊📊
+## What it does
+
+Users’ voice input regarding their objectives for a study session are converted into a custom dashboard by Google Gemini, which has a timer and checklist based on the user’s specific goals. 
+Once the dashboard is launched, we monitor users’ browser activity and use eye tracking software to evaluate their level of focus during the study session. We use Gemini to assign visited websites a label of “productive” or “unproductive”.
+Once the study session is completed, a graphic is displayed summarizing the productivity of the session, providing instant feedback and a standard of focus to strive for in future sessions.
+
+## How we built it
+
+We split the work evenly amongst team members, delegating different tasks to each one of us. One of our team members specialized in developing the front end and voice transcription features. Two of our team members were tasked with designing the website-tracking chrome extension and the eye-tracking focus system. Another integrated the chrome extension into the backend.
+
+## Challenges we ran into
+
+We ran into difficulties getting the tab monitoring and eye tracking systems to occur in parallel after a user started a study session. Once that was resolved, merging all of the separate workflows (landing screen, dashboard generation, productivity tracking, and final dashboard) posed some challenges.
+
+
+## Accomplishments that we're proud of
+
+We are very pleased with our voice-generated dashboard component. The app efficiently makes a call to the Gemini API to take the user’s description of their desired study session – regardless of how rambling or vague it is – and generates a sleek study dashboard for them. We are also proud of the tab tracking element – the app stores all of the domains a user visits during a study session and across our countless test runs, successfully classifies productive and unproductive tabs. This feature is especially important to us since we’ve far too often experienced study sessions go awry after switching tabs and going down many an unproductive rabbit hole, and Miza’s tab tracking feature provides insight into a user’s productivity across a study session.
+
+
+
+
