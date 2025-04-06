@@ -13,6 +13,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 load_dotenv()
+# COmbines eyes.py and server.py functionality
+
 # --------------- Flask Server Setup ---------------
 
 app = Flask(__name__)
