@@ -3,7 +3,8 @@ from urllib.parse import urlparse
 import threading
 import time
 from datetime import datetime
-
+import productivity_analyzer as analyze
+import eyes as vision
 
 from flask_cors import CORS
 
@@ -13,6 +14,8 @@ from flask_cors import CORS
 # Create the Flask app instance
 app = Flask(__name__)
 CORS(app)
+CORS(app, origins=["http://localhost:3000"], methods=["DELETE"], supports_credentials=True)
+tracker = vision.EyeTracker()
 
 # Store all domain names with timestamps
 domain_history = {}
@@ -76,8 +79,31 @@ def get_domains():
 
 @app.route('/domains', methods=['DELETE'])
 def delete_domains():
-    domain_history = {}
+    global domain_history
+    domain_history= {}
+    print(f"DELETE: Total Domains Tracked: {len(domain_history)}")
     return {"status": "ok"}
+
+@app.route('/domains/analyze', methods=['GET'])
+def analyze_domains():
+    counts = analyze.main()
+    delete_domains()
+    return {"status": "ok", "productive": counts[0], "unproductive": counts[1]}
+
+@app.route('/vision/start', methods=['POST'])
+def start_vision():
+    tracker.start()
+    return {"status": "ok"}
+
+@app.route('/vision/step', methods=['POST'])
+def step_vision():
+    tracker.step()
+    return {"status": "ok"}
+
+@app.route('/vision/stop', methods=['POST'])
+def stop_vision():
+    score = tracker.stop()
+    return {"focus_score": score}
 
 def run_server():
     app.run(port=5001)

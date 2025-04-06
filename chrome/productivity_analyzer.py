@@ -1,5 +1,7 @@
 import os
 import google.generativeai as genai
+import matplotlib
+matplotlib.use('Agg')  # Use a backend that doesn't require a display
 import matplotlib.pyplot as plt
 import requests
 from dotenv import load_dotenv
@@ -78,11 +80,7 @@ def list_available_models():
 # Initialize the analyzer on import
 setup_analyzer()
 
-if __name__ == "__main__":
-    # Uncomment to debug model names
-    # list_available_models()
-
-    # Fetch tracked domains from the server
+def main():
     try:
         response = requests.get("http://localhost:5001/domains")
         del_response = requests.delete("http://localhost:5001/domains")
@@ -109,9 +107,51 @@ if __name__ == "__main__":
     statuses = list(results.keys())
     counts   = list(results.values())
 
-    plt.figure(figsize=(6,4))
-    plt.bar(statuses, counts, color=['green', 'red'])
-    plt.title("Website Visit Analysis")
-    plt.xlabel("Category")
-    plt.ylabel("Number of Visits")
-    plt.show()
+    return counts
+
+    # plt.figure(figsize=(6,4))
+    # plt.bar(statuses, counts, color=['green', 'red'])
+    # plt.title("Website Visit Analysis")
+    # plt.xlabel("Category")
+    # plt.ylabel("Number of Visits")
+    # plt.savefig("analysis_result.png")
+    #plt.show()
+
+# if __name__ == "__main__":
+#     # Uncomment to debug model names
+#     # list_available_models()
+
+#     # Fetch tracked domains from the server
+#     try:
+#         response = requests.get("http://localhost:5001/domains")
+#         del_response = requests.delete("http://localhost:5001/domains")
+#         response.raise_for_status()
+#         domain_history = response.json()
+#         sample_domains = list(domain_history.keys())
+#         if not sample_domains:
+#             print("No domains tracked yet.")
+#     except Exception as e:
+#         print(f"Error fetching domain history: {e}")
+#         sample_domains = []
+
+#     # Tally results
+#     results = {"productive": 0, "unproductive": 0}
+
+#     for domain in sample_domains:
+#         label = analyze_productivity(domain)
+#         results[label] += 1
+#         print(f"{domain}: {label}")
+
+#     print("Analysis results:", results)
+
+#     # Plot the results
+#     statuses = list(results.keys())
+#     counts   = list(results.values())
+
+#     plt.figure(figsize=(6,4))
+#     plt.bar(statuses, counts, color=['green', 'red'])
+#     plt.title("Website Visit Analysis")
+#     plt.xlabel("Category")
+#     plt.ylabel("Number of Visits")
+#     plt.savefig("analysis_result.png")
+#     #plt.show()
