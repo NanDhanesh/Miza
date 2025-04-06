@@ -152,6 +152,11 @@
     font-family: Arial, sans-serif;
   }
   
+  .logo {
+    width: 80px; /* Adjust size */
+    height: auto;
+    margin-bottom: 1rem;
+  }
   
   /* Responsive adjustments */
   @media (max-width: 768px) {

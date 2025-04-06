@@ -183,6 +183,7 @@ export default function StudyApp() {
         <button className="submit-transcript" onClick={() => handleSubmitTranscript(transcript)}>
           Generate Study Dashboard
         </button>
+        <img src="/logo.png" alt="Logo" className="logo" />
       </div>
     </div>
   )

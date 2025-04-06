@@ -213,15 +213,25 @@ export default function DashboardPage() {
 
   return (
     <div
-      style={{
-        backgroundColor: "white",
-        color: "#111",
-        minHeight: "100vh",
-        padding: "2rem",
-        margin: "0 auto",
-        fontFamily: "Arial, sans-serif",
-      }}
+    style={{
+      background: "linear-gradient(to bottom, #f5f7fa, #e4e8f0)",
+      color: "#2c3e50",
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      fontFamily: "Arial, sans-serif",
+      padding: "2rem",
+    }}
     >
+      <div style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: "600px",
+    gap: "2rem", // adds space between stacked components
+  }}>
       <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>🎯 Your Study Dashboard</h1>
 
       <div style={{ marginBottom: "2rem" }}>
@@ -232,12 +242,13 @@ export default function DashboardPage() {
             fontWeight: "bold",
             marginTop: "0.5rem",
             color: countdown <= 60 && isRunning ? "red" : "black",
+            textAlign: "center",
           }}
         >
           {formatTime(countdown)}
         </div>
 
-        <div style={{ marginTop: "1rem", display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "1rem" }}>
           {!isRunning && (
             <button onClick={handleStart} style={buttonStyle}>
               ▶️ Start
@@ -278,16 +289,17 @@ export default function DashboardPage() {
 
         </ul>
       </div>
+      </div>
     </div>
   )
 }
 
 const buttonStyle: React.CSSProperties = {
   padding: "10px 16px",
-  backgroundColor: "#3498db",
+  backgroundColor: "#961aeb",
   color: "#fff",
   border: "none",
-  borderRadius: "8px",
+  borderRadius: "24px",
   fontWeight: "bold",
   cursor: "pointer",
   fontSize: "1rem",
