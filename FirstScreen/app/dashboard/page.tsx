@@ -1,6 +1,6 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 interface DashboardData {
@@ -125,6 +125,8 @@ export default function DashboardPage() {
   //   setCountdown(0)
   // }
 
+  const router = useRouter()
+
   const handleEnd = async () => {
     try {
       const response = await fetch("http://localhost:5001/domains/analyze", {
@@ -142,12 +144,26 @@ export default function DashboardPage() {
       setIsPaused(false)
       setCountdown(0)
       if (result.status === "ok") {
-        setSessionSummary({
-          productive: result.productive,
-          unproductive: result.unproductive,
-        })
-        alert(`🧠 Focus Score: ${result2.focus_score}`)
+        const productive = result.productive ?? 0;
+        const unproductive = result.unproductive ?? 0;
+        setSessionSummary({ productive, unproductive });
+
+        const completed = checklistState.filter(item => item).length;
+        const total = checklistState.length;
+        const checkRate = (completed / total) * 100;
+        const compRate = productive + unproductive > 0
+        ? Math.round((productive / (productive + unproductive)) * 100)
+        : 0;
+
+        router.push(`/focus-wrapped?focus=${compRate}&score=${result2.focus_score*100}&completed=${completed}&total=${total}`);
+        //alert(`🧠 Focus Score: ${result2.focus_score}`)
       }
+      
+
+
+      // Navigate to focus-wrapped page with checklist data
+      
+      //router.push(`/focus-wrapped?completed=${completedTasks}&total=${totalTasks}`);
       // if (result.status === "ok") {
       //   setIsRunning(true)
       //   setIsPaused(false)
@@ -157,6 +173,14 @@ export default function DashboardPage() {
     } catch (err) {
       console.error("Error connecting to Flask server:", err)
       alert("Failed to start session: Could not reach local server.")
+      const completed = checklistState.filter(item => item).length;
+      const total = checklistState.length;
+      const checkRate = (completed / total) * 100;
+
+      const compRate = (sessionSummary?.productive !== undefined && sessionSummary?.unproductive !== undefined)
+      ? Math.round((sessionSummary.productive / (sessionSummary.productive + sessionSummary.unproductive)) * 100)
+  : 100;
+      router.push(`/focus-wrapped?focus=${compRate}&score=${50}&completed=${completed}&total=${total}`);
     }
   }
 
