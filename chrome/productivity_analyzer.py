@@ -9,10 +9,10 @@ _analyzer_enabled = False
 def setup_analyzer():
     """Initialize the productivity analyzer with the API key"""
     global _analyzer_enabled
-    
+
     # Try to get API key from environment variable
     api_key = os.environ.get("GEMINI_API_KEY")
-    
+
     # If not in environment, try to load from config file
     if not api_key:
         try:
@@ -22,7 +22,7 @@ def setup_analyzer():
             print("WARNING: GEMINI_API_KEY not found in environment or .api_key file")
             _analyzer_enabled = False
             return False
-    
+
     # Configure Gemini with the API key
     try:
         genai.configure(api_key=api_key)
@@ -30,51 +30,39 @@ def setup_analyzer():
         print("Productivity analyzer successfully configured")
         return True
     except Exception as e:
-        print(f"Error configuring Gemini API: {str(e)}")
+        print(f"Error configuring Gemini API: {e}")
         _analyzer_enabled = False
         return False
-
-def is_analyzer_enabled():
-    """Check if the productivity analyzer is enabled"""
-    return _analyzer_enabled
 
 def analyze_productivity(domain):
     """Use Gemini API to determine if a domain is productive for studying"""
     if not _analyzer_enabled:
-        # Try to set up analyzer one more time
         if not setup_analyzer():
-            return "unknown"
-    
-    try:
-        # Use the updated model name 'gemini-2.0-flash-lite'
-        model_name = 'gemini-2.0-flash-lite'
-        model = genai.GenerativeModel(model_name)
-        
-        # Craft the prompt for a single domain
-        prompt = f"""Based on the list of websites the user has visited during a study session, 
-determine whether each one is either productive or unproductive for a study session. 
-Make a strict binary determination.
+            return "productive"  # fallback if setup fails
+
+    prompt = f"""You are an assistant helping students stay on task.
+Given a single website domain, decide whether it is productive or unproductive for a typical study session.
+Make a clear binary choice and respond with exactly one of these two words (no punctuation, no extra text):
+
+productive
+unproductive
 
 Website: {domain}
+"""
 
-Respond with only the word 'productive' or 'unproductive'."""
-        
-        # Get response from Gemini
+    model = genai.GenerativeModel("gemini-2.0-flash-lite")
+
+    try:
         response = model.generate_content(prompt)
-        
-        # Process the response
         result = response.text.strip().lower()
-        
-        # Ensure we only get 'productive' or 'unproductive'
-        if result in ['productive', 'unproductive']:
+        if result in ("productive", "unproductive"):
             return result
         else:
-            print(f"Unexpected Gemini response for {domain}: {result}")
-            return "unknown"
-            
+            print(f"Unexpected response for {domain!r}: {result!r}. Defaulting to productive.")
+            return "productive"
     except Exception as e:
-        print(f"Error analyzing productivity for {domain}: {str(e)}")
-        return "unknown"
+        print(f"Error analyzing productivity for {domain!r}: {e}. Defaulting to productive.")
+        return "productive"
 
 def list_available_models():
     """Optional: List available models for the Gemini API"""
@@ -82,40 +70,40 @@ def list_available_models():
         models = genai.list_models()
         print("Available models:", models)
     except Exception as e:
-        print("Error listing available models:", str(e))
+        print("Error listing available models:", e)
 
-# Initialize the analyzer when the module is imported
+# Initialize the analyzer on import
 setup_analyzer()
 
 if __name__ == "__main__":
-    # Uncomment the next line to list available models if needed
+    # Uncomment to debug model names
     # list_available_models()
 
-    # Retrieve the list of tracked domains from the tracking server
+    # Fetch tracked domains from the server
     try:
         response = requests.get("http://localhost:5001/domains")
         response.raise_for_status()
-        domain_history = response.json()  # domain_history is a dict with domain keys
+        domain_history = response.json()
         sample_domains = list(domain_history.keys())
         if not sample_domains:
             print("No domains tracked yet.")
     except Exception as e:
-        print(f"Error fetching domain history: {str(e)}")
+        print(f"Error fetching domain history: {e}")
         sample_domains = []
-    
-    # Dictionary to count outcomes
+
+    # Tally results
     results = {"productive": 0, "unproductive": 0}
-    
-    # Analyze each domain and accumulate the results
+
     for domain in sample_domains:
-        result = analyze_productivity(domain)
-        results[result] += 1
-        print(f"{domain}: {result}")
-    
+        label = analyze_productivity(domain)
+        results[label] += 1
+        print(f"{domain}: {label}")
+
     print("Analysis results:", results)
 
+    # Plot the results
     statuses = list(results.keys())
-    counts = list(results.values())
+    counts   = list(results.values())
 
     plt.figure(figsize=(6,4))
     plt.bar(statuses, counts, color=['green', 'red'])
@@ -123,6 +111,3 @@ if __name__ == "__main__":
     plt.xlabel("Category")
     plt.ylabel("Number of Visits")
     plt.show()
-
-    
-
