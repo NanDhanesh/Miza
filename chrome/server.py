@@ -70,7 +70,14 @@ def get_domains():
             'last_seen': data['last_seen'].strftime('%Y-%m-%d %H:%M:%S'),
             'count': data['count']
         }
+    #Wipe the domain_history dict here to allow the server to permarun - assumes u only get when u need to delete too
+    #domain_history = {}
     return serializable_history
+
+@app.route('/domains', methods=['DELETE'])
+def delete_domains():
+    domain_history = {}
+    return {"status": "ok"}
 
 def run_server():
     app.run(port=5001)

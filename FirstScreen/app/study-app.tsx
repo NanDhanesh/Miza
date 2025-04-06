@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Mic, Square } from "lucide-react"
 import "./styles.css"
 
@@ -125,10 +126,12 @@ export default function StudyApp() {
 
     setIsRecording(!isRecording)
   }
+
+  const router = useRouter()
+
   const handleSubmitTranscript = async (text: string) => {
     console.log("Submitting transcript:", text)
   
-    // TODO: Replace this with a real API call
     try {
       const response = await fetch("/api/generate-dashboard", {
         method: "POST",
@@ -140,7 +143,10 @@ export default function StudyApp() {
   
       const data = await response.json()
       console.log("LLM response:", data)
-      // You could now update state to render the generated dashboard
+  
+      const encodedResult = encodeURIComponent(data.result || "")
+      router.push(`/dashboard?result=${encodedResult}`)
+      
     } catch (error) {
       console.error("Submission failed", error)
     }

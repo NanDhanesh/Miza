@@ -2,6 +2,9 @@ import os
 import google.generativeai as genai
 import matplotlib.pyplot as plt
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Track if the analyzer is properly configured
 _analyzer_enabled = False
@@ -82,6 +85,7 @@ if __name__ == "__main__":
     # Fetch tracked domains from the server
     try:
         response = requests.get("http://localhost:5001/domains")
+        del_response = requests.delete("http://localhost:5001/domains")
         response.raise_for_status()
         domain_history = response.json()
         sample_domains = list(domain_history.keys())
