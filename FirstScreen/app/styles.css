@@ -115,6 +115,7 @@
     border: none;
     border-radius: 12px;
     background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.1);
     resize: vertical;
     transition: border-color 0.3s, box-shadow 0.3s;
   }
@@ -142,7 +143,20 @@
     background-color: #6308a1;
     box-shadow: 0 6px 16px #d7a2fc;
   }
+
+  .dashboard-light {
+    background: linear-gradient(to bottom, #f5f7fa, #e4e8f0);
+    color: #111;
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+  }
   
+  .logo {
+    width: 80px; /* Adjust size */
+    height: auto;
+    margin-bottom: 1rem;
+  }
   
   /* Responsive adjustments */
   @media (max-width: 768px) {
