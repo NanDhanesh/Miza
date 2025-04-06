@@ -1,6 +1,6 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 interface DashboardData {
@@ -19,47 +19,132 @@ export default function DashboardPage() {
   const [checklistState, setChecklistState] = useState<boolean[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-
   const [sessionSummary, setSessionSummary] = useState<{ productive: number; unproductive: number } | null>(null)
 
+  //const searchParams = useSearchParams();
+  const router = useRouter();
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  //const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [checkedTasks, setCheckedTasks] = useState<boolean[]>([]);
+  const [initialTime, setInitialTime] = useState<number>(0);
+
+
+  // useEffect(() => {
+  //   if (resultRaw) {
+  //     try {
+  //       const jsonString = resultRaw.replace(/```json|```/g, "").trim()
+  //       const parsed: DashboardData = JSON.parse(jsonString)
+  //       setDashboard(parsed)
+  //       setCountdown(parsed.timer * 60)
+  //       setChecklistState(new Array(parsed.checklist.length).fill(false))
+  //     } catch (err) {
+  //       console.error("Failed to parse dashboard result:", err)
+  //     }
+  //   }
+  // }, [resultRaw])
+
+  // Load and parse dashboard data
   useEffect(() => {
-    if (resultRaw) {
+    const data = searchParams.get("data");
+    if (data) {
       try {
-        const jsonString = resultRaw.replace(/```json|```/g, "").trim()
-        const parsed: DashboardData = JSON.parse(jsonString)
-        setDashboard(parsed)
-        setCountdown(parsed.timer * 60)
-        setChecklistState(new Array(parsed.checklist.length).fill(false))
-      } catch (err) {
-        console.error("Failed to parse dashboard result:", err)
+        const decodedData = decodeURIComponent(data);
+        const cleanedData = decodedData
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+        const parsedData = JSON.parse(cleanedData);
+        setDashboardData(parsedData);
+        const totalSeconds = parsedData.timer * 60;
+        setTimeLeft(totalSeconds);
+        setInitialTime(totalSeconds);
+        setCheckedTasks(new Array(parsedData.checklist.length).fill(false));
+      } catch (error) {
+        console.error("Failed to parse dashboard data:", error);
       }
     }
-  }, [resultRaw])
+  }, [searchParams]);
 
+  // useEffect(() => {
+  //   if (!isRunning || isPaused || countdown <= 0) return
+
+  //   const interval = setInterval(() => {
+  //     setCountdown((prev) => prev - 1)
+  //   }, 1000)
+
+  //   return () => clearInterval(interval)
+  // }, [isRunning, isPaused, countdown])
+
+  // Timer countdown logic
   useEffect(() => {
-    if (!isRunning || isPaused || countdown <= 0) return
+    if (!isRunning || timeLeft <= 0) return;
 
     const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1)
-    }, 1000)
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsRunning(false);
+          // Calculate checklist completion
+          const completedTasks = checkedTasks.filter(Boolean).length;
+          const totalTasks = checkedTasks.length;
+          // Navigate to focus-wrapped page with checklist data
+          router.push(
+            `/focus-wrapped?completed=${completedTasks}&total=${totalTasks}`
+          );
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [isRunning, isPaused, countdown])
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, router, checkedTasks]);
 
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60)
+  //   const secs = seconds % 60
+  //   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  // }
+
+  // Format time as MM:SS
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // const toggleChecklistItem = (index: number) => {
+  //   setChecklistState((prev) => {
+  //     const updated = [...prev]
+  //     updated[index] = !updated[index]
+  //     return updated
+  //   })
+  // }
+
+  // Calculate the progress for the circle (0 to 1)
+  const progress = timeLeft / initialTime;
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
+
+  // Toggle checkbox state
+  const handleCheckboxChange = (index: number) => {
+    setCheckedTasks((prev) =>
+      prev.map((checked, i) => (i === index ? !checked : checked))
+    );
+  };
+
+  // Start/stop timer
+  const toggleTimer = () => {
+    setIsRunning((prev) => !prev);
+  };
+
+  if (!dashboardData) {
+    return <div>Loading dashboard...</div>;
   }
 
-  const toggleChecklistItem = (index: number) => {
-    setChecklistState((prev) => {
-      const updated = [...prev]
-      updated[index] = !updated[index]
-      return updated
-    })
-  }
-
+  //------------------------------------//
   useEffect(() => {
     if (!isRunning || isPaused) return
   
@@ -179,79 +264,80 @@ export default function DashboardPage() {
   //   }
   // }
 
-  if (!dashboard) {
-    return <p style={{ padding: "2rem" }}>Loading dashboard...</p>
-  }
+  //-------------------------------------------//
+
+  // if (!dashboard) {
+  //   return <p style={{ padding: "2rem" }}>Loading dashboard...</p>
+  // }
 
   return (
-    <div
-      style={{
-        backgroundColor: "white",
-        color: "#111",
-        minHeight: "100vh",
-        padding: "2rem",
-        margin: "0 auto",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>🎯 Your Study Dashboard</h1>
-
-      <div style={{ marginBottom: "2rem" }}>
-        <h2 style={{ fontSize: "1.5rem" }}>⏱ Focus Timer</h2>
-        <div
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            marginTop: "0.5rem",
-            color: countdown <= 60 && isRunning ? "red" : "black",
-          }}
-        >
-          {formatTime(countdown)}
-        </div>
-
-        <div style={{ marginTop: "1rem", display: "flex", gap: "12px" }}>
-          {!isRunning && (
-            <button onClick={handleStart} style={buttonStyle}>
-              ▶️ Start
-            </button>
-          )}
-          {isRunning && (
-            <button onClick={handlePauseResume} style={buttonStyle}>
-              {isPaused ? "⏯ Resume" : "⏸ Pause"}
-            </button>
-          )}
-          <button onClick={handleEnd} style={buttonStyle}>
-            🛑 End
+    <div className="dashboard-container">
+      <h1>Your Study Dashboard</h1>
+      <div className="dashboard-content">
+        <div className="timer-section">
+          <div className="timer-circle">
+            <svg width="140" height="140">
+              <circle
+                cx="70"
+                cy="70"
+                r={radius}
+                stroke="#444"
+                strokeWidth="10"
+                fill="none"
+              />
+              <circle
+                cx="70"
+                cy="70"
+                r={radius}
+                stroke="#2ecc71"
+                strokeWidth="10"
+                fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                className="progress-circle"
+              />
+              <text
+                x="50%"
+                y="50%"
+                dy=".3em"
+                textAnchor="middle"
+                fill="#ffffff"
+                fontSize="20"
+                transform="rotate(90, 70, 70)"
+              >
+                {formatTime(timeLeft)}
+              </text>
+            </svg>
+          </div>
+          <button onClick={toggleTimer}>
+            {isRunning ? "Pause" : timeLeft === 0 ? "Finished" : "Start"}
           </button>
         </div>
-      </div>
-
-      <div>
-        <h3 style={{ fontSize: "1.3rem", marginBottom: "0.5rem" }}>✅ Checklist</h3>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {dashboard.checklist.map((item, index) => (
-            <li key={index} style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+        <h3>Checklist:</h3>
+        <ul>
+          {dashboardData.checklist.map((task: string, index: number) => (
+            <li key={index} className="checklist-item">
               <input
                 type="checkbox"
-                checked={checklistState[index]}
-                onChange={() => toggleChecklistItem(index)}
-                style={{ marginRight: "10px" }}
+                checked={checkedTasks[index]}
+                onChange={() => handleCheckboxChange(index)}
               />
-              <span style={{ textDecoration: checklistState[index] ? "line-through" : "none" }}>{item}</span>
+              <span className={checkedTasks[index] ? "completed" : ""}>
+                {task}
+              </span>
             </li>
           ))}
-          {sessionSummary && (
-  <div style={{ marginTop: "2rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "8px" }}>
-    <h3>📊 Session Summary</h3>
-    <p>✅ Productive Visits: {sessionSummary.productive} visits</p>
-    <p>🚫 Unproductive Visits: {sessionSummary.unproductive} visits</p>
-  </div>
-)}
-
         </ul>
+        {dashboardData.notes && (
+          <div>
+            <h3>Notes:</h3>
+            <p>{dashboardData.notes}</p>
+          </div>
+        )}
       </div>
+      <button onClick={() => window.history.back()}>Back to Study App</button>
     </div>
-  )
+  );
 }
 
 const buttonStyle: React.CSSProperties = {
