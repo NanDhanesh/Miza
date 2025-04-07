@@ -20,7 +20,7 @@ export default function FocusWrapped({
       <div className="wrapped-content">
         <div className="wrapped-header">
           <h1>Your Study Session Wrapped</h1>
-          <p className="wrapped-subtitle">Hey user, here's how you crushed it this year!</p>
+          <p className="wrapped-subtitle">Hey user, here's how you crushed it this session!</p>
         </div>
 
         <div className="stats-container">
